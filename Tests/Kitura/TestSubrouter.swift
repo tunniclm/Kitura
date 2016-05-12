@@ -181,11 +181,11 @@ class TestSubrouter : XCTestCase {
         subRouter.all("/sub2", middleware: subsubRouter)
 
         let router = Router()
-        let middleware = RouterMiddlewareGenerator { (request: RouterRequest, response: RouterResponse, next: () -> Void) in
+        let middleware = RouterMiddlewareGenerator { (request: RouterRequest, response: RouterResponse, next: (CallbackOption...) -> Void) in
             response.status(HTTPStatusCode.OK).send("first middle\n")
             next()
         }
-        let middleware2 = RouterMiddlewareGenerator { (request: RouterRequest, response: RouterResponse, next: () -> Void) in
+        let middleware2 = RouterMiddlewareGenerator { (request: RouterRequest, response: RouterResponse, next: (CallbackOption...) -> Void) in
             response.status(HTTPStatusCode.OK).send("last middle\n")
             next()
         }

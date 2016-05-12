@@ -616,7 +616,7 @@ extension Router : RouterMiddleware {
     /// - Parameter request: the router request
     /// - Parameter response: the router response
     ///
-    public func handle(request: RouterRequest, response: RouterResponse, next: () -> Void) {
+    public func handle(request: RouterRequest, response: RouterResponse, next: (CallbackOption...) -> Void) {
         guard let urlPath = request.parsedUrl.path else {
             Log.error("Failed to handle request")
             return
