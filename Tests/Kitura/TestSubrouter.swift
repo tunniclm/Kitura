@@ -159,35 +159,35 @@ class TestSubrouter : XCTestCase {
 
     static func setupRouter() -> Router {
         let subsubRouter = Router()
-        subsubRouter.get("/") { request, response, next in
+        subsubRouter.get("/") { request, response, r in
             response.status(HTTPStatusCode.OK).send("hello from the sub sub")
-            next()
+            r.next()
         }
-        subsubRouter.get("/sub1") { request, response, next in
+        subsubRouter.get("/sub1") { request, response, r in
             response.status(HTTPStatusCode.OK).send("subsub1")
-            next()
+            r.next()
         }
 
         let subRouter = Router()
-        subRouter.get("/") { request, response, next in
+        subRouter.get("/") { request, response, r in
             response.status(HTTPStatusCode.OK).send("hello from the sub")
-            next()
+            r.next()
         }
-        subRouter.get("/sub1") { request, response, next in
+        subRouter.get("/sub1") { request, response, r in
             response.status(HTTPStatusCode.OK).send("sub1")
-            next()
+            r.next()
         }
 
         subRouter.all("/sub2", middleware: subsubRouter)
 
         let router = Router()
-        let middleware = RouterMiddlewareGenerator { (request: RouterRequest, response: RouterResponse, next: () -> Void) in
+        let middleware = RouterMiddlewareGenerator { (request: RouterRequest, response: RouterResponse, r: RouterCallback) in
             response.status(HTTPStatusCode.OK).send("first middle\n")
-            next()
+            r.next()
         }
-        let middleware2 = RouterMiddlewareGenerator { (request: RouterRequest, response: RouterResponse, next: () -> Void) in
+        let middleware2 = RouterMiddlewareGenerator { (request: RouterRequest, response: RouterResponse, r: RouterCallback) in
             response.status(HTTPStatusCode.OK).send("last middle\n")
-            next()
+            r.next()
         }
         router.all("/middle", middleware: middleware)
         router.all("/middle", middleware: subRouter)

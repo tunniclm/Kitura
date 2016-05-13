@@ -14,8 +14,18 @@
  * limitations under the License.
  **/
 
+public class RouterCallback {
+    let callback: (CallbackOption) -> Void
 
-///
-/// RouterHandler is a closure
-///
-public typealias RouterHandler = (request: RouterRequest, response: RouterResponse, r: RouterCallback) -> Void
+    init(_ callback: (CallbackOption) -> Void) {
+        self.callback = callback
+    }
+
+    public func next() {
+        callback(.middleware)
+    }
+
+    public func nextRoute() {
+        callback(.route)
+    }
+}

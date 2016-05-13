@@ -141,7 +141,7 @@ class RouterElement {
     ///
     private func processHelper(request: RouterRequest, response: RouterResponse, next: () -> Void) {
         let looper = RouterMiddlewareWalker(middlewares: middlewares, method: method, request: request, response: response, callback: next)
-        looper.next()
+        looper.next(.middleware)
     }
 
     ///

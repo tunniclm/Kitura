@@ -52,14 +52,14 @@ public class BodyParser: RouterMiddleware {
     /// - Parameter response: the router response
     /// - Parameter next: the closure for the next execution block
     ///
-    public func handle(request: RouterRequest, response: RouterResponse, next: () -> Void) {
+    public func handle(request: RouterRequest, response: RouterResponse, r: RouterCallback) {
 
         guard request.serverRequest.headers["Content-Length"] != nil else {
-            return next()
+            return r.next()
         }
 
         request.body = BodyParser.parse(request, contentType: request.serverRequest.headers["Content-Type"])
-        next()
+        r.next()
 
     }
 

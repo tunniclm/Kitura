@@ -14,8 +14,7 @@
  * limitations under the License.
  **/
 
-
-///
-/// RouterHandler is a closure
-///
-public typealias RouterHandler = (request: RouterRequest, response: RouterResponse, r: RouterCallback) -> Void
+public enum CallbackOption {
+    case middleware
+    case route
+}

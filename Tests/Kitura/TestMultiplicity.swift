@@ -116,39 +116,39 @@ class TestMultiplicity : XCTestCase {
     static func setupRouter() -> Router {
         let router = Router()
 
-        router.get("/1/(plus)+") {_, response, next in
+        router.get("/1/(plus)+") {_, response, r in
             do {
                 try response.status(HTTPStatusCode.OK).end()
             }
             catch {}
 
-            next()
+            r.next()
         }
 
-        router.get("/2/(star)*") {_, response, next in
+        router.get("/2/(star)*") {_, response, r in
             do {
                 try response.status(HTTPStatusCode.OK).end()
             }
             catch {}
-            next()
+            r.next()
         }
 
-        router.get("/3/(question)?") {_, response, next in
+        router.get("/3/(question)?") {_, response, r in
             do {
                 try response.status(HTTPStatusCode.OK).end()
             }
             catch {}
 
-            next()
+            r.next()
         }
 
-        router.get ("/4/(question)?/(plus+)+/(star)*") {_, response, next in
+        router.get ("/4/(question)?/(plus+)+/(star)*") {_, response, r in
             do {
                 try response.status(HTTPStatusCode.OK).end()
             }
             catch {}
 
-            next()
+            r.next()
         }
 
         return router

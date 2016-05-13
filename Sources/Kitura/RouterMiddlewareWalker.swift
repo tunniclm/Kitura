@@ -47,17 +47,16 @@ class RouterMiddlewareWalker
     ///
     /// Handle the next middleware
     ///
-    func next() {
+    func next(_ option: CallbackOption) {
         middlewareCount += 1
 
-        if middlewareCount < middlewares.count && (response.error == nil || method == .error) {
-            middlewares[middlewareCount].handle(request: request, response: response) {
-                [unowned self] in
-                self.next()
-            }
-        } else {
+        let hadError = (response.error != nil && method != .error)
+        let isLastMiddleware = (middlewareCount >= middlewares.count)
+        if option == .route || hadError || isLastMiddleware {
             request.params = [:]
             callback()
+        } else {
+            middlewares[middlewareCount].handle(request: request, response: response, r: RouterCallback(next))
         }
     }
 }

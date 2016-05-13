@@ -21,7 +21,7 @@ class RouterMiddlewareGenerator: RouterMiddleware {
     ///
     /// The closure invoked to handle requests
     ///
-    let handleInner: (RouterRequest, RouterResponse, () -> Void) -> Void
+    let handleInner: (RouterRequest, RouterResponse, RouterCallback) -> Void
 
     ///
     /// Initalizes a RouterMiddlewareGenerator
@@ -30,7 +30,7 @@ class RouterMiddlewareGenerator: RouterMiddleware {
     ///
     /// - Returns: a RouterMiddlewareGenerator instance
     ///
-    init(handler: (request: RouterRequest, response: RouterResponse, next: () -> Void) -> Void) {
+    init(handler: (request: RouterRequest, response: RouterResponse, r: RouterCallback) -> Void) {
         handleInner = handler
     }
 
@@ -41,7 +41,7 @@ class RouterMiddlewareGenerator: RouterMiddleware {
     /// - Parameter response: the router response
     /// - Parameter next: the closure to the next operation
     ///
-    func handle(request: RouterRequest, response: RouterResponse, next: () -> Void) {
-        handleInner(request, response, next)
+    func handle(request: RouterRequest, response: RouterResponse, r: RouterCallback) {
+        handleInner(request, response, r)
     }
 }

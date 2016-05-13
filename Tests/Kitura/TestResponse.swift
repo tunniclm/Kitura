@@ -170,7 +170,7 @@ class TestResponse : XCTestCase {
 
     func testHeaderModifiers() {
 
-        router.get("/headerTest") { _, response, next in
+        router.get("/headerTest") { _, response, r in
 
             response.append("Content-Type", value: "text/html")
             XCTAssertEqual(response.getHeader("Content-Type"), "text/html")
@@ -203,7 +203,7 @@ class TestResponse : XCTestCase {
                 try response.status(HTTPStatusCode.OK).end("<!DOCTYPE html><html><body><b>Received</b></body></html>\n\n")
             }
             catch {}
-            next()
+            r.next()
         }
 
         performServerTest(router) { expectation in
@@ -217,7 +217,7 @@ class TestResponse : XCTestCase {
 
     func testAcceptTypes() {
 
-        router.get("/customPage") { request, response, next in
+        router.get("/customPage") { request, response, r in
 
             XCTAssertEqual(request.accepts("html"), "html", "Accepts did not return expected value")
             XCTAssertEqual(request.accepts("text/html"), "text/html", "Accepts did not return expected value")
@@ -238,10 +238,10 @@ class TestResponse : XCTestCase {
                 try response.status(HTTPStatusCode.OK).end("<!DOCTYPE html><html><body><b>Received</b></body></html>\n\n")
             }
             catch {}
-            next()
+            r.next()
         }
 
-        router.get("/customPage2") { request, response, next in
+        router.get("/customPage2") { request, response, r in
 
             XCTAssertEqual(request.accepts("image/png"), "image/png", "Request accepts this type when it shouldn't")
             XCTAssertEqual(request.accepts("image/tiff"), "image/tiff", "Request accepts this type when it shouldn't")
@@ -253,7 +253,7 @@ class TestResponse : XCTestCase {
                 try response.status(HTTPStatusCode.OK).end("<!DOCTYPE html><html><body><b>Received</b></body></html>\n\n")
             }
             catch {}
-            next()
+            r.next()
         }
 
         performServerTest(router, asyncTasks: { expectation in
@@ -355,22 +355,22 @@ class TestResponse : XCTestCase {
         let router = Router()
 
         // the same router definition is used for all these test cases
-        router.all("/zxcv/:p1") { request, _, next in
+        router.all("/zxcv/:p1") { request, _, r in
             request.userInfo["u1"] = "Ploni Almoni".bridge()
-            next()
+            r.next()
         }
 
-        router.get("/qwer") { _, response, next in
+        router.get("/qwer") { _, response, r in
             response.setHeader("Content-Type", value: "text/html; charset=utf-8")
             do {
                 try response.status(HTTPStatusCode.OK).end("<!DOCTYPE html><html><body><b>Received</b></body></html>\n\n")
             }
             catch {}
-            next()
+            r.next()
         }
 
 
-        router.get("/zxcv/:p1") { request, response, next in
+        router.get("/zxcv/:p1") { request, response, r in
             response.setHeader("Content-Type", value: "text/html; charset=utf-8")
             let p1 = request.params["p1"] ?? "(nil)"
             let q = request.queryParams["q"] ?? "(nil)"
@@ -379,46 +379,46 @@ class TestResponse : XCTestCase {
                 try response.status(HTTPStatusCode.OK).send("<!DOCTYPE html><html><body><b>Received /zxcv</b><p><p>p1=\(p1)<p><p>q=\(q)<p><p>u1=\(u1)</body></html>\n\n").end()
             }
             catch {}
-            next()
+            r.next()
         }
 
-        router.get("/redir") { _, response, next in
+        router.get("/redir") { _, response, r in
             do {
                 try response.redirect("http://www.ibm.com")
             }
             catch {}
 
-            next()
+            r.next()
         }
 
         // Error handling example
-        router.get("/error") { _, response, next in
+        router.get("/error") { _, response, r in
             response.status(HTTPStatusCode.internalServerError)
             response.error = InternalError.nilVariable(variable: "foo")
-            next()
+            r.next()
         }
 
         router.route("/route")
-        .get { _, response, next in
+        .get { _, response, r in
             response.status(HTTPStatusCode.OK).send("get 1\n")
-            next()
+            r.next()
         }
-        .post {_, response, next in
+        .post {_, response, r in
             response.status(HTTPStatusCode.OK).send("post received")
-            next()
+            r.next()
         }
-        .get { _, response, next in
+        .get { _, response, r in
             response.status(HTTPStatusCode.OK).send("get 2\n")
-            next()
+            r.next()
         }
 
 
         router.all("/bodytest", middleware: BodyParser())
 
-        router.post("/bodytest") { request, response, next in
+        router.post("/bodytest") { request, response, r in
             response.setHeader("Content-Type", value: "text/html; charset=utf-8")
             guard let requestBody = request.body else {
-                next ()
+                r.next ()
                 return
             }
             switch (requestBody) {
@@ -437,7 +437,7 @@ class TestResponse : XCTestCase {
 
             }
 
-            next()
+            r.next()
         }
 
         func callbackText(request: RouterRequest, response: RouterResponse) {
@@ -465,7 +465,7 @@ class TestResponse : XCTestCase {
 
         }
 
-        router.get("/format") { request, response, next in
+        router.get("/format") { request, response, r in
             do {
                 try response.format(callbacks: [
                                                    "text/plain" : callbackText,
@@ -475,13 +475,13 @@ class TestResponse : XCTestCase {
             catch {}
         }
 
-        router.get("/single_link") { request, response, next in
+        router.get("/single_link") { request, response, r in
             do {
                 try response.link("https://developer.ibm.com/swift", rel: "root").status(.OK).end()
             } catch {}
         }
 
-        router.get("/multiple_links") { request, response, next in
+        router.get("/multiple_links") { request, response, r in
             do {
               try response
               .link("https://developer.ibm.com/swift/products/ibm-bluemix/", rel: "prev")
@@ -490,7 +490,7 @@ class TestResponse : XCTestCase {
             } catch {}
         }
 
-        router.error { request, response, next in
+        router.error { request, response, r in
             response.setHeader("Content-Type", value: "text/plain; charset=utf-8")
             do {
                 let errorDescription: String
@@ -503,7 +503,7 @@ class TestResponse : XCTestCase {
                 try response.send("Caught the error: \(errorDescription)").end()
             }
             catch {}
-            next()
+            r.next()
         }
 
 	return router

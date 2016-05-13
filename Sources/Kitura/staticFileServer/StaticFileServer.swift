@@ -114,9 +114,9 @@ public class StaticFileServer: RouterMiddleware {
     /// - Parameter response: the router response
     /// - Parameter next: the closure for the next execution block
     ///
-    public func handle (request: RouterRequest, response: RouterResponse, next: () -> Void) {
+    public func handle (request: RouterRequest, response: RouterResponse, r: RouterCallback) {
         guard request.serverRequest.method == "GET" || request.serverRequest.method == "HEAD" else {
-            return next()
+            return r.next()
         }
         
         var filePath = path
@@ -138,7 +138,7 @@ public class StaticFileServer: RouterMiddleware {
                 if serveIndexForDir {
                     filePath += "index.html"
                 } else {
-                    next()
+                    r.next()
                     return
                 }
             }
@@ -172,7 +172,7 @@ public class StaticFileServer: RouterMiddleware {
                 }
             }
         }
-        next()
+        r.next()
     }
 
     private func serveFile(_ filePath: String, fileManager: NSFileManager, response: RouterResponse) {

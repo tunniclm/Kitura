@@ -161,16 +161,16 @@ class TestCookies : XCTestCase {
     static func setupRouter() -> Router {
         let router = Router()
 
-        router.get("/1/cookiedump") {request, response, next in
+        router.get("/1/cookiedump") {request, response, r in
             response.status(HTTPStatusCode.OK)
             if  let ploverCookie = request.cookies["Plover"]  {
                 response.send(ploverCookie.value)
             }
 
-            next()
+            r.next()
         }
 
-        router.get("/1/sendcookie") {request, response, next in
+        router.get("/1/sendcookie") {request, response, r in
             response.status(HTTPStatusCode.OK)
 
             let cookie1 = NSHTTPCookie(properties: [NSHTTPCookieName: cookie1Name,
@@ -185,10 +185,10 @@ class TestCookies : XCTestCase {
                                                 NSHTTPCookieExpires: cookie2ExpireExpected])
             response.cookies[cookie2!.name] = cookie2
 
-            next()
+            r.next()
         }
 
-        router.get("/2/sendcookie") {request, response, next in
+        router.get("/2/sendcookie") {request, response, r in
             response.status(HTTPStatusCode.OK)
 
             let cookie = NSHTTPCookie(properties: [NSHTTPCookieName: cookie3Name,
@@ -198,7 +198,7 @@ class TestCookies : XCTestCase {
                                                 NSHTTPCookieSecure: "Yes"])
             response.cookies[cookie!.name] = cookie
 
-            next()
+            r.next()
         }
 
         return router
