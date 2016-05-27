@@ -16,6 +16,7 @@
 
 import Foundation
 import XCTest
+import SwiftyJSON
 
 @testable import Kitura
 @testable import KituraNet
@@ -39,7 +40,8 @@ class TestResponse : XCTestCase {
             ("testRouteFunc", testRouteFunc),
             ("testAcceptTypes", testAcceptTypes),
             ("testFormat", testFormat),
-            ("testLink", testLink)
+            ("testLink", testLink),
+            ("testJsonp", testJsonp)
         ]
     }
 
@@ -349,6 +351,45 @@ class TestResponse : XCTestCase {
         }
     }
 
+    func testJsonp() {
+        performServerTest(router) { expectation in
+            self.performRequest("get", path: "/jsonp?callback=testfn", callback: { response in
+                XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
+                XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(response!.statusCode)")
+                do {
+                    let body = try response!.readString()
+                    XCTAssertEqual(body!,"/**/ testfn({\n  \"some\": \"json\"\n})")
+                }
+                catch{
+                    XCTFail("No response body")
+                }
+                expectation.fulfill()
+            })
+        }
+
+        performServerTest(router) { expectation in
+            self.performRequest("get", path: "/jsonp?callback=test+fn", callback: { response in
+                XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
+                XCTAssertEqual(response!.statusCode, HTTPStatusCode.OK, "HTTP Status code was \(response!.statusCode)")
+                do {
+                    let body = try response!.readString()
+                    XCTAssertEqual(body!,"/**/ testfn({\n  \"some\": \"json\"\n})")
+                }
+                catch{
+                    XCTFail("No response body")
+                }
+                expectation.fulfill()
+            })
+        }
+
+        performServerTest(router) { expectation in
+            self.performRequest("get", path: "/jsonp", callback: { response in
+                XCTAssertNotNil(response, "ERROR!!! ClientRequest response object was nil")
+                XCTAssertEqual(response!.statusCode, HTTPStatusCode.badRequest, "HTTP Status code was \(response!.statusCode)")
+                expectation.fulfill()
+            })
+        }
+    }
 
     static func setupRouter() -> Router {
         let router = Router()
@@ -486,6 +527,13 @@ class TestResponse : XCTestCase {
               .link("https://developer.ibm.com/swift/products/ibm-bluemix/", rel: "prev")
               .link("https://developer.ibm.com/swift/products/ibm-swift-sandbox/", rel: "next")
               .status(.OK).end()
+            } catch {}
+        }
+
+        router.get("/jsonp") { request, response, next in
+            let json = JSON([ "some": "json" ])
+            do {
+                try response.status(.OK).jsonp(json: json).end();
             } catch {}
         }
 
